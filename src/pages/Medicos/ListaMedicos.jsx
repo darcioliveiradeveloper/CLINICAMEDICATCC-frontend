@@ -92,6 +92,7 @@ export default function ListaMedicos() {
                 <th>Nome</th>
                 <th>Especialidade</th>
                 <th>CRM</th>
+                <th>Telefone</th>
                 <th>Email</th>
                 {podeEditar && <th style={{ width: 140 }}>Ações</th>}
               </tr>
@@ -102,6 +103,7 @@ export default function ListaMedicos() {
                   <td>{m.nome}</td>
                   <td>{m.especialidade}</td>
                   <td>{m.crm}</td>
+                  <td>{m.telefone || '-'}</td>
                   <td>{m.email || '-'}</td>
                   {podeEditar && (
                     <td>
