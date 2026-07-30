@@ -75,8 +75,8 @@ npm run build
 
 ## Deploy
 
-- **Frontend:** (a definir)
-- **Backend:** (a definir)
+- **Frontend:** https://clinicamedicatcc-frontend.onrender.com
+- **Backend:** https://clinicamedicatcc-backend.onrender.com
 
 ## Repositórios
 
