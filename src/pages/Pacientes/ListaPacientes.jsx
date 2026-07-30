@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { listarPacientes, deletarPaciente, buscarPorNome } from '../../services/pacienteService';
+import { listarPacientes, deletarPaciente, buscarPorNome, buscarPorCPF } from '../../services/pacienteService';
 import Layout from '../../components/Layout';
 
 export default function ListaPacientes() {
@@ -9,6 +9,7 @@ export default function ListaPacientes() {
   const navigate = useNavigate();
   const [pacientes, setPacientes] = useState([]);
   const [busca, setBusca] = useState('');
+  const [filtroTipo, setFiltroTipo] = useState('nome');
   const [carregando, setCarregando] = useState(true);
 
   const perfil = user?.perfil;
@@ -32,7 +33,12 @@ export default function ListaPacientes() {
     if (!busca.trim()) { carregar(); return; }
     setCarregando(true);
     try {
-      const response = await buscarPorNome(busca);
+      let response;
+      if (filtroTipo === 'nome') {
+        response = await buscarPorNome(busca);
+      } else {
+        response = await buscarPorCPF(busca);
+      }
       setPacientes(response.data);
     } catch {
       setPacientes([]);
@@ -55,9 +61,13 @@ export default function ListaPacientes() {
     <Layout titulo="Pacientes">
       <div className="toolbar">
         <div className="search-group">
+          <select value={filtroTipo} onChange={(e) => setFiltroTipo(e.target.value)}>
+            <option value="nome">Nome</option>
+            <option value="cpf">CPF</option>
+          </select>
           <input
             type="text"
-            placeholder="Buscar por nome..."
+            placeholder={filtroTipo === 'nome' ? 'Buscar por nome...' : 'Buscar por CPF...'}
             value={busca}
             onChange={(e) => setBusca(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && handleBusca()}
@@ -83,6 +93,7 @@ export default function ListaPacientes() {
                 <th>Nome</th>
                 <th>CPF</th>
                 <th>Data Nasc.</th>
+                <th>Telefone</th>
                 <th>Email</th>
                 {podeEditar && <th style={{ width: 140 }}>Ações</th>}
               </tr>
@@ -93,6 +104,7 @@ export default function ListaPacientes() {
                   <td>{p.nome}</td>
                   <td>{p.cpf}</td>
                   <td>{new Date(p.dataNascimento).toLocaleDateString('pt-BR')}</td>
+                  <td>{p.telefone || '-'}</td>
                   <td>{p.email || '-'}</td>
                   {podeEditar && (
                     <td>

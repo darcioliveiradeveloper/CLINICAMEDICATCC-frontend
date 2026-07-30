@@ -67,7 +67,8 @@ export default function FormUsuario() {
     try {
       if (editando) {
         await atualizarUsuario(id, dados);
-        setSucesso('Usuário atualizado com sucesso!');
+        navigate('/usuarios', { state: { atualizado: true } });
+        return;
       } else {
         await cadastrarUsuario(dados);
         setSucesso('Usuário cadastrado com sucesso!');

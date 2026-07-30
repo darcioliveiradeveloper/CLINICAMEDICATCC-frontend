@@ -33,8 +33,8 @@ export default function FormPaciente() {
     e.preventDefault();
     setErro('');
 
-    if (!form.nome || !form.cpf || !form.dataNascimento) {
-      setErro('Nome, CPF e data de nascimento são obrigatórios');
+    if (!form.nome || !form.cpf || !form.dataNascimento || !form.telefone) {
+      setErro('Nome, CPF, data de nascimento e telefone são obrigatórios');
       return;
     }
 
@@ -75,7 +75,7 @@ export default function FormPaciente() {
             <input name="email" type="email" value={form.email} onChange={handleChange} placeholder="paciente@email.com" />
           </div>
           <div className="form-group">
-            <label>Telefone (opcional)</label>
+            <label>Telefone</label>
             <input name="telefone" value={form.telefone} onChange={handleChange} placeholder="(11) 99999-9999" />
           </div>
           <div className="form-actions">

@@ -8,3 +8,5 @@ export const consultasPorPaciente = (id) => api.get(`/relatorios/consultas/pacie
 export const consultasPorPeriodo = (inicio, fim) =>
   api.get(`/relatorios/consultas/periodo?dataInicio=${inicio}&dataFim=${fim}`);
 export const especialidadesRanking = () => api.get('/relatorios/especialidades');
+export const medicosMaisAtivos = () => api.get('/relatorios/medicos/mais-ativos');
+export const percentualPorPerfil = () => api.get('/relatorios/usuarios/perfil');

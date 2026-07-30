@@ -6,3 +6,4 @@ export const criarPaciente = (dados) => api.post('/pacientes', dados);
 export const atualizarPaciente = (id, dados) => api.put(`/pacientes/${id}`, dados);
 export const deletarPaciente = (id) => api.delete(`/pacientes/${id}`);
 export const buscarPorNome = (nome) => api.get(`/pacientes/busca/nome?nome=${nome}`);
+export const buscarPorCPF = (cpf) => api.get(`/pacientes/busca/cpf?cpf=${cpf}`);

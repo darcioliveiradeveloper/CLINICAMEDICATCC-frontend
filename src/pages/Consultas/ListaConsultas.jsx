@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { listarConsultas, deletarConsulta, buscarPorPeriodo, buscarPorEspecialidade } from '../../services/consultaService';
+import { listarConsultas, deletarConsulta, buscarAvancado } from '../../services/consultaService';
 import Layout from '../../components/Layout';
 
 export default function ListaConsultas() {
@@ -34,15 +34,12 @@ export default function ListaConsultas() {
     if (!filtroValor.trim()) { carregar(); return; }
     setCarregando(true);
     try {
-      let response;
-      if (filtroTipo === 'especialidade') {
-        response = await buscarPorEspecialidade(filtroValor);
-      } else if (filtroTipo === 'periodo') {
-        const [inicio, fim] = filtroValor.split(' a ');
-        response = await buscarPorPeriodo(inicio, fim);
-      } else {
-        response = await listarConsultas();
-      }
+      const params = {};
+      if (filtroTipo === 'medico') params.medico = filtroValor;
+      else if (filtroTipo === 'paciente') params.paciente = filtroValor;
+      else if (filtroTipo === 'cpf') params.cpf = filtroValor;
+      else if (filtroTipo === 'descricao') params.descricao = filtroValor;
+      const response = await buscarAvancado(params);
       setConsultas(response.data);
     } catch {
       setConsultas([]);
@@ -61,19 +58,28 @@ export default function ListaConsultas() {
     }
   };
 
+  const placeholderMap = {
+    medico: 'Nome do médico...',
+    paciente: 'Nome do paciente...',
+    cpf: 'CPF do paciente...',
+    descricao: 'Palavra-chave...',
+  };
+
   return (
     <Layout titulo="Consultas">
       <div className="toolbar">
         <div className="search-group">
           <select value={filtroTipo} onChange={(e) => setFiltroTipo(e.target.value)}>
             <option value="">Todas</option>
-            <option value="especialidade">Especialidade</option>
-            <option value="periodo">Período (dataInicio a dataFim)</option>
+            <option value="medico">Médico</option>
+            <option value="paciente">Paciente</option>
+            <option value="cpf">CPF</option>
+            <option value="descricao">Descrição</option>
           </select>
           {filtroTipo && (
             <input
               type="text"
-              placeholder={filtroTipo === 'periodo' ? 'Ex: 2026-01-01 a 2026-12-31' : 'Ex: Cardiologia'}
+              placeholder={placeholderMap[filtroTipo]}
               value={filtroValor}
               onChange={(e) => setFiltroValor(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleFiltrar()}

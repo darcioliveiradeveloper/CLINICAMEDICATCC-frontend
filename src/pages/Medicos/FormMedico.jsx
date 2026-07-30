@@ -8,7 +8,7 @@ export default function FormMedico() {
   const navigate = useNavigate();
   const editando = Boolean(id);
 
-  const [form, setForm] = useState({ nome: '', especialidade: '', crm: '', email: '' });
+  const [form, setForm] = useState({ nome: '', especialidade: '', crm: '', email: '', telefone: '' });
   const [erro, setErro] = useState('');
   const [carregando, setCarregando] = useState(false);
 
@@ -16,7 +16,7 @@ export default function FormMedico() {
     if (editando) {
       buscarMedico(id).then((r) => {
         const m = r.data;
-        setForm({ nome: m.nome, especialidade: m.especialidade, crm: m.crm, email: m.email || '' });
+        setForm({ nome: m.nome, especialidade: m.especialidade, crm: m.crm, email: m.email || '', telefone: m.telefone || '' });
       }).catch(() => navigate('/medicos'));
     }
   }, [id, editando, navigate]);
@@ -27,8 +27,8 @@ export default function FormMedico() {
     e.preventDefault();
     setErro('');
 
-    if (!form.nome || !form.especialidade || !form.crm) {
-      setErro('Nome, especialidade e CRM são obrigatórios');
+    if (!form.nome || !form.especialidade || !form.crm || !form.telefone) {
+      setErro('Nome, especialidade, CRM e telefone são obrigatórios');
       return;
     }
 
@@ -63,6 +63,10 @@ export default function FormMedico() {
           <div className="form-group">
             <label>CRM</label>
             <input name="crm" value={form.crm} onChange={handleChange} placeholder="Ex: 12345-SP" />
+          </div>
+          <div className="form-group">
+            <label>Telefone</label>
+            <input name="telefone" value={form.telefone} onChange={handleChange} placeholder="(11) 99999-9999" />
           </div>
           <div className="form-group">
             <label>Email (opcional)</label>

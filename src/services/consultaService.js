@@ -12,3 +12,4 @@ export const buscarPorPeriodo = (inicio, fim) =>
   api.get(`/consultas/busca/periodo?dataInicio=${inicio}&dataFim=${fim}`);
 export const buscarPorEspecialidade = (especialidade) =>
   api.get(`/consultas/busca/especialidade?especialidade=${especialidade}`);
+export const buscarAvancado = (params) => api.get('/consultas/busca/avancada', { params });

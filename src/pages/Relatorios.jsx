@@ -4,14 +4,19 @@ import Layout from '../components/Layout';
 import {
   totalMedicos, totalPacientes, totalConsultas,
   consultasPorPeriodo, especialidadesRanking,
+  medicosMaisAtivos, percentualPorPerfil,
 } from '../services/relatorioService';
 
 export default function Relatorios() {
   const { user } = useAuth();
   const [totais, setTotais] = useState(null);
   const [ranking, setRanking] = useState([]);
+  const [ativos, setAtivos] = useState([]);
+  const [perfis, setPerfis] = useState([]);
   const [periodo, setPeriodo] = useState({ inicio: '', fim: '' });
   const [consultasPeriodo, setConsultasPeriodo] = useState(null);
+
+  const perfil = user?.perfil;
 
   useEffect(() => {
     const carregar = async () => {
@@ -24,7 +29,23 @@ export default function Relatorios() {
       } catch { /* ignore */ }
     };
     carregar();
-  }, []);
+    carregarAtivos();
+    if (perfil === 'admin') carregarPerfis();
+  }, [perfil]);
+
+  const carregarAtivos = async () => {
+    try {
+      const r = await medicosMaisAtivos();
+      setAtivos(r.data);
+    } catch { setAtivos([]); }
+  };
+
+  const carregarPerfis = async () => {
+    try {
+      const r = await percentualPorPerfil();
+      setPerfis(r.data);
+    } catch { setPerfis([]); }
+  };
 
   const handleBuscarPeriodo = async () => {
     if (!periodo.inicio || !periodo.fim) return;
@@ -35,6 +56,9 @@ export default function Relatorios() {
       setConsultasPeriodo(null);
     }
   };
+
+  const maxRanking = Math.max(...ranking.map((r) => r.total), 1);
+  const maxAtivos = Math.max(...ativos.map((a) => a.total), 1);
 
   return (
     <Layout titulo="Relatórios">
@@ -71,24 +95,82 @@ export default function Relatorios() {
           {ranking.length === 0 ? (
             <p className="empty-text">Nenhum dado disponível.</p>
           ) : (
-            <table className="table" style={{ boxShadow: 'none' }}>
-              <thead>
-                <tr>
-                  <th>Especialidade</th>
-                  <th>Total</th>
-                </tr>
-              </thead>
-              <tbody>
-                {ranking.map((item, i) => (
-                  <tr key={i}>
-                    <td>{item.especialidade}</td>
-                    <td><strong>{item.total}</strong></td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              {ranking.map((item, i) => (
+                <div key={i}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
+                    <span>{item.especialidade}</span>
+                    <strong>{item.total}</strong>
+                  </div>
+                  <div style={{ background: '#eee', borderRadius: 6, height: 20, overflow: 'hidden' }}>
+                    <div style={{
+                      width: `${(item.total / maxRanking) * 100}%`,
+                      background: '#1a73e8',
+                      height: '100%',
+                      borderRadius: 6,
+                      transition: 'width 0.5s',
+                    }} />
+                  </div>
+                </div>
+              ))}
+            </div>
           )}
         </div>
+
+        <div className="form-container">
+          <h3 style={{ marginBottom: 16 }}>Médicos Mais Ativos</h3>
+          {ativos.length === 0 ? (
+            <p className="empty-text">Nenhum dado disponível.</p>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              {ativos.map((item, i) => (
+                <div key={i}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
+                    <span>{item.medico}</span>
+                    <strong>{item.total} consultas</strong>
+                  </div>
+                  <div style={{ background: '#eee', borderRadius: 6, height: 20, overflow: 'hidden' }}>
+                    <div style={{
+                      width: `${(item.total / maxAtivos) * 100}%`,
+                      background: '#28a745',
+                      height: '100%',
+                      borderRadius: 6,
+                      transition: 'width 0.5s',
+                    }} />
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {perfil === 'admin' && (
+          <div className="form-container">
+            <h3 style={{ marginBottom: 16 }}>Usuários por Perfil</h3>
+            {perfis.length === 0 ? (
+              <p className="empty-text">Nenhum dado disponível.</p>
+            ) : (
+              <table className="table" style={{ boxShadow: 'none' }}>
+                <thead>
+                  <tr>
+                    <th>Perfil</th>
+                    <th>Total</th>
+                    <th>%</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {perfis.map((p, i) => (
+                    <tr key={i}>
+                      <td style={{ textTransform: 'capitalize' }}>{p.perfil}</td>
+                      <td><strong>{p.total}</strong></td>
+                      <td>{p.percentual}%</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+          </div>
+        )}
       </div>
     </Layout>
   );
